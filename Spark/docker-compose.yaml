@@ -1,0 +1,45 @@
+services:
+  spark:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: spark-container
+    networks:
+      - spark-network
+    ports:
+      - "8888:8888"
+      - "7077:7077"
+    volumes:
+      - ./src:/opt/bitnami/spark/src
+    environment:
+      - SPARK_MODE=master
+      - SPARK_MASTER_PORT=7077
+      - SPARK_MASTER_WEBUI_PORT=8888
+      - BITNAMI_DEBUG=true
+
+  spark-worker1:
+    image: bitnami/spark:latest
+    container_name: spark-worker1
+    networks:
+      - spark-network
+    depends_on:
+      - spark
+    environment:
+      - SPARK_MODE=worker
+      - SPARK_MASTER_URL=spark://spark-container:7077
+      - SPARK_WORKER_MEMORY=2G
+
+  spark-worker2:
+    image: bitnami/spark:latest
+    container_name: spark-worker2
+    networks:
+      - spark-network
+    depends_on:
+      - spark
+    environment:
+      - SPARK_MODE=worker
+      - SPARK_MASTER_URL=spark://spark-container:7077
+      - SPARK_WORKER_MEMORY=2G
+networks:
+  spark-network:
+    driver: bridge
