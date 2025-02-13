@@ -7,7 +7,7 @@ spark = SparkSession.builder \
 
 def ingest(spark, projeto, table, format, schema=None):
     raw = f"s3a://raw/{projeto}/{table}/*"
-    bronze = f"s3a://data/bronze/{projeto}/{table}"
+    bronze = f"s3a://bronze/{projeto}/{table}"
 
     df = spark.read.format(format).option('header','true').schema(schema).load(raw)
     df.write.mode('overwrite').save(bronze)
