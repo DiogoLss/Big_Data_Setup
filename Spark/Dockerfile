@@ -2,7 +2,8 @@ FROM bitnami/spark:latest
 
 WORKDIR /opt/bitnami/spark/
 
-COPY conf/jars/*.jar /opt/bitnami/spark/jars/
+COPY jars/*.jar /opt/bitnami/spark/jars/
+COPY spark-defaults.conf /opt/bitnami/spark/conf/spark-defaults.conf
 
 EXPOSE 8888 7077
 

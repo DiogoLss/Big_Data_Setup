@@ -20,8 +20,8 @@ RUN wget -qO- "https://dlcdn.apache.org/spark/spark-${SPARK_VERSION}/spark-${SPA
 ENV SPARK_HOME=/opt/spark
 ENV PATH="${SPARK_HOME}/bin:${PATH}"
 
-COPY dependencies/jars/ /opt/spark/jars/
-COPY dependencies/spark-defaults.conf /opt/spark/conf/spark-defaults.conf
+COPY jars/ /opt/spark/jars/
+COPY spark-defaults.conf /opt/spark/conf/spark-defaults.conf
 
 #PIP INSTALL
 USER airflow

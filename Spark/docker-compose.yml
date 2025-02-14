@@ -5,7 +5,7 @@ services:
       dockerfile: Dockerfile
     container_name: spark-container
     networks:
-      - airflow_default
+      - spark_network
     ports:
       - "8888:8888"
       - "7077:7077"
@@ -21,7 +21,7 @@ services:
     image: bitnami/spark:latest
     container_name: spark-worker1
     networks:
-      - airflow_default
+      - spark_network
     depends_on:
       - spark
     environment:
@@ -33,7 +33,7 @@ services:
     image: bitnami/spark:latest
     container_name: spark-worker2
     networks:
-      - airflow_default
+      - spark_network
     depends_on:
       - spark
     environment:
@@ -42,6 +42,6 @@ services:
       - SPARK_WORKER_MEMORY=2G
 
 networks:
-  airflow_default:
-    external: true
-    driver: bridge
+  spark_network:
+    name: spark_network
+    driver: bridge 
