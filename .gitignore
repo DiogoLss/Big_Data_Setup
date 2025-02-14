@@ -250,3 +250,4 @@ airflow-build-dockerfile*
 #extra
 dags/include/data
 dependencies
+jars

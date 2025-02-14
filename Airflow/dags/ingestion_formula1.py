@@ -95,11 +95,22 @@ def move_to_bucket():
                     os.remove(caminho_completo)
 
 
+def print_():
+    print("teste")
+
 dag = DAG(
      dag_id="F1_Ingestion",
      start_date=datetime(2021, 1, 1),
      schedule=None,
      catchup=False
+)
+
+
+
+print_test = PythonOperator(
+    task_id='print',
+    python_callable=print_,
+    dag=dag
 )
 
 read_from_api = PythonOperator(
@@ -113,5 +124,5 @@ upload_files_to_bucket = PythonOperator(
     python_callable=move_to_bucket,
     dag=dag
 )
-
-read_from_api >> upload_files_to_bucket
+print_test
+# read_from_api >> upload_files_to_bucket

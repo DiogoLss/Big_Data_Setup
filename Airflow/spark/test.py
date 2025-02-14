@@ -5,7 +5,6 @@ from pyspark.sql import SparkSession
 
 spark = SparkSession.builder \
     .appName("Spark Session") \
-    .config("spark.driver.host","172.18.0.7")\
     .getOrCreate()
 
 
