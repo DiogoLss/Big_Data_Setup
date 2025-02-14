@@ -1,58 +1,47 @@
-x-spark-common:
-  &spark-common
-  volumes:
-    - ./spark_apps:/opt/spark/apps
-    - spark-logs:/opt/spark/spark-events
-  networks:
-      - airflow_default
-
 services:
-  spark-master:
-    <<: *spark-common
-    container_name: da-spark-master
-    build: .
-    image: da-spark-image
-    entrypoint: ['./entrypoint.sh', 'master']
-    healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8080" ]
-      interval: 5s
-      timeout: 3s
-      retries: 3
-    env_file:
-      - .env.spark
+  spark:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: spark-container
+    networks:
+      - airflow_default
     ports:
-      - '9090:8080'
-      - '7077:7077'
-
-
-  spark-history-server:
-    <<: *spark-common
-    container_name: da-spark-history
-    image: da-spark-image
-    entrypoint: ['./entrypoint.sh', 'history']
-    depends_on:
-      - spark-master
-    env_file:
-      - .env.spark
-    ports:
-      - '18080:18080'
-
-  spark-worker:
-    <<: *spark-common
-    image: da-spark-image
-    entrypoint: ['./entrypoint.sh', 'worker']
-    depends_on:
-      - spark-master
-    env_file:
-      - .env.spark
+      - "8888:8888"
+      - "7077:7077"
+    volumes:
+      - ./src:/opt/bitnami/spark/src
     environment:
+      - SPARK_MODE=master
+      - SPARK_MASTER_PORT=7077
+      - SPARK_MASTER_WEBUI_PORT=8888
+      - BITNAMI_DEBUG=true
+
+  spark-worker1:
+    image: bitnami/spark:latest
+    container_name: spark-worker1
+    networks:
+      - airflow_default
+    depends_on:
+      - spark
+    environment:
+      - SPARK_MODE=worker
+      - SPARK_MASTER_URL=spark://spark-container:7077
       - SPARK_WORKER_MEMORY=2G
 
-volumes:
-  spark-logs:
-
+  spark-worker2:
+    image: bitnami/spark:latest
+    container_name: spark-worker2
+    networks:
+      - airflow_default
+    depends_on:
+      - spark
+    environment:
+      - SPARK_MODE=worker
+      - SPARK_MASTER_URL=spark://spark-container:7077
+      - SPARK_WORKER_MEMORY=2G
 
 networks:
   airflow_default:
     external: true
-  
+    driver: bridge

@@ -19,16 +19,14 @@ dag = DAG(
 ingest_task = SparkSubmitOperator(
     task_id='spark_ingest_bronze',
     application='/opt/airflow/spark/test.py',
-    # application='s3a://raw/test.py',
     conn_id='spark_conn',
-    # total_executor_cores='1',
-    # executor_cores='1',
-    # executor_memory='1g',
-    # num_executors='1',
-    # driver_memory='1g',
+    total_executor_cores='1',
+    executor_cores='1',
+    executor_memory='1g',
+    num_executors='1',
+    driver_memory='1g',
     conf={
-        'spark.driver.host':'airflow-worker',
-        # 'spark.driver.bindAddress':'0.0.0.0',
+        'spark.driver.host':'airflow-worker'
     },
     dag=dag
     # application_args=['arg1', 'arg2'], 
