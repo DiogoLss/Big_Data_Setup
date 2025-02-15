@@ -7,14 +7,14 @@ services:
     networks:
       - spark_network
     ports:
-      - "8888:8888"
+      - "4040:4040"
       - "7077:7077"
     volumes:
       - ./src:/opt/bitnami/spark/src
     environment:
       - SPARK_MODE=master
       - SPARK_MASTER_PORT=7077
-      - SPARK_MASTER_WEBUI_PORT=8888
+      - SPARK_MASTER_WEBUI_PORT=4040
       - BITNAMI_DEBUG=true
 
   spark-worker1:
@@ -40,6 +40,18 @@ services:
       - SPARK_MODE=worker
       - SPARK_MASTER_URL=spark://spark-container:7077
       - SPARK_WORKER_MEMORY=2G
+
+  spark_notebook:
+    build:
+      context: .
+      dockerfile: Dockerfilejupyter
+    container_name: spark-notebook
+    networks:
+      - spark_network
+    depends_on:
+      - spark
+    ports:
+      - "8888:8888"
 
 networks:
   spark_network:

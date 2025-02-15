@@ -1,0 +1,6 @@
+FROM jupyter/all-spark-notebook
+
+COPY jars/*.jar /usr/local/spark-3.5.0-bin-hadoop3/jars/
+COPY spark-defaults.conf /usr/local/spark-3.5.0-bin-hadoop3/conf/spark-defaults.conf
+
+EXPOSE 8888

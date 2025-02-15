@@ -19,6 +19,7 @@ dag = DAG(
 ingest_task = SparkSubmitOperator(
     task_id='spark_ingest_bronze',
     application='/opt/airflow/spark/test.py',
+    # application='s3a://raw/test.py',
     conn_id='spark_conn',
     total_executor_cores='1',
     executor_cores='1',
