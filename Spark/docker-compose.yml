@@ -1,16 +1,20 @@
+x-spark-common:
+  &spark-common
+  networks:
+    - spark_network
+  volumes:
+    - ./src:/src
+
 services:
   spark:
+    <<: *spark-common
     build:
       context: .
       dockerfile: Dockerfile
     container_name: spark-container
-    networks:
-      - spark_network
     ports:
       - "4040:4040"
       - "7077:7077"
-    volumes:
-      - ./src:/opt/bitnami/spark/src
     environment:
       - SPARK_MODE=master
       - SPARK_MASTER_PORT=7077
@@ -18,10 +22,9 @@ services:
       - BITNAMI_DEBUG=true
 
   spark-worker1:
+    <<: *spark-common
     image: bitnami/spark:latest
     container_name: spark-worker1
-    networks:
-      - spark_network
     depends_on:
       - spark
     environment:
@@ -30,10 +33,9 @@ services:
       - SPARK_WORKER_MEMORY=2G
 
   spark-worker2:
+    <<: *spark-common
     image: bitnami/spark:latest
     container_name: spark-worker2
-    networks:
-      - spark_network
     depends_on:
       - spark
     environment:
@@ -42,12 +44,11 @@ services:
       - SPARK_WORKER_MEMORY=2G
 
   spark_notebook:
+    <<: *spark-common
     build:
       context: .
       dockerfile: Dockerfilejupyter
     container_name: spark-notebook
-    networks:
-      - spark_network
     depends_on:
       - spark
     ports:
@@ -56,4 +57,4 @@ services:
 networks:
   spark_network:
     name: spark_network
-    driver: bridge 
+    driver: bridge
