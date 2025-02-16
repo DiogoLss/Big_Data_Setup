@@ -1,0 +1,66 @@
+services:
+  hive-postgres:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: hive
+      POSTGRES_PASSWORD: hive
+      POSTGRES_DB: hive_metadata
+    volumes:
+      - hive-postgres-db-volume:/var/lib/postgresql/data
+    networks:
+      - spark_network
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U"]
+      interval: 10s
+      retries: 5
+      start_period: 5s
+    restart: always
+    ports:
+      - "5433:5432"
+
+  hive-metastore:
+    build:
+      context: .
+      dockerfile: Dockerfilehive
+    container_name: hive-metastore
+    environment:
+      HIVE_METASTORE_DRIVER: org.postgresql.Driver
+      HIVE_METASTORE_JDBC_URL: jdbc:postgresql://hive-postgres:5432/hive_metadata
+      HIVE_METASTORE_USER: hive
+      HIVE_METASTORE_PASSWORD: hive
+      HIVE_METASTORE_WAREHOUSE_DIR: s3://data/
+      S3_ENDPOINT: http://minio:9000
+      S3_ACCESS_KEY: V0QkzsE4bGncCu6Ut649
+      S3_SECRET_KEY: WSdw74IkgGjXhdYwN25KesUzWG0eHRCMUxYTaKO2
+      S3_PATH_STYLE_ACCESS: "true"
+      REGION: ""
+      GOOGLE_CLOUD_KEY_FILE_PATH: ""
+      AZURE_ADL_CLIENT_ID: ""
+      AZURE_ADL_CREDENTIAL: ""
+      AZURE_ADL_REFRESH_URL: ""
+      AZURE_ABFS_STORAGE_ACCOUNT: ""
+      AZURE_ABFS_ACCESS_KEY: ""
+      AZURE_WASB_STORAGE_ACCOUNT: ""
+      AZURE_ABFS_OAUTH: ""
+      AZURE_ABFS_OAUTH_TOKEN_PROVIDER: ""
+      AZURE_ABFS_OAUTH_CLIENT_ID: ""
+      AZURE_ABFS_OAUTH_SECRET: ""
+      AZURE_ABFS_OAUTH_ENDPOINT: ""
+      AZURE_WASB_ACCESS_KEY: ""
+      HIVE_METASTORE_USERS_IN_ADMIN_ROLE: "admin"
+    healthcheck:
+      test: bash -c "exec 6<> /dev/tcp/localhost/9083"
+    networks:
+      - spark_network
+    depends_on:
+      - hive-postgres
+    ports:
+      - 9083:9083
+
+volumes:
+    hive-postgres-db-volume:
+
+networks:
+  spark_network:
+    external: true
+    driver: bridge

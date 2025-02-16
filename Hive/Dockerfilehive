@@ -1,0 +1,6 @@
+FROM starburstdata/hive:3.1.2-e.18
+
+COPY jars/*.jar /opt/apache-hive-3.1.2-bin/lib/
+# COPY hive-site.xml /opt/apache-hive-3.1.2-bin/conf/hive-site.xml
+
+EXPOSE 9083

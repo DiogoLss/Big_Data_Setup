@@ -3,10 +3,11 @@ from pyspark.conf import SparkConf
 
 from pyspark.sql import SparkSession
 
+# Criação de uma SparkSession com configuração para usar o Hive
 spark = SparkSession.builder \
-    .appName("Spark Session") \
+    .appName("Test Hive Metastore") \
+    .enableHiveSupport() \
+    .config("spark.sql.catalogImplementation", "hive") \
     .getOrCreate()
 
-
-df = spark.read.format('csv').load('s3a://raw/nubank/fatura/')
-df.show()
+spark.sql("SHOW TABLES").show()

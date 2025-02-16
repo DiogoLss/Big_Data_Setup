@@ -10,6 +10,14 @@ services:
       - minio:/data
     env_file:
       - .env
+    networks:
+      - spark_network
 
 volumes:
   minio:
+
+
+networks:
+  spark_network:
+    external: true
+    driver: bridge

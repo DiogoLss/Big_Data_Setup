@@ -2,6 +2,7 @@ FROM jupyter/all-spark-notebook
 
 COPY jars/*.jar /usr/local/spark-3.5.0-bin-hadoop3/jars/
 COPY spark-defaults.conf /usr/local/spark-3.5.0-bin-hadoop3/conf/spark-defaults.conf
+COPY hive-site.xml /usr/local/spark-3.5.0-bin-hadoop3/conf/hive-site.xml
 
 WORKDIR /src
 
