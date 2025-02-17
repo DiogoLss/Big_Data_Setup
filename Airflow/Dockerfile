@@ -22,6 +22,7 @@ ENV PATH="${SPARK_HOME}/bin:${PATH}"
 
 COPY jars/ /opt/spark/jars/
 COPY spark-defaults.conf /opt/spark/conf/spark-defaults.conf
+COPY hive-site.xml /opt/spark/conf/hive-site.xml
 
 #PIP INSTALL
 USER airflow
