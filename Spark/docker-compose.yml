@@ -9,8 +9,8 @@ services:
   spark:
     <<: *spark-common
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ../
+      dockerfile: DockerfileSpark
     container_name: spark-container
     ports:
       - "4040:4040"
@@ -46,8 +46,8 @@ services:
   spark_notebook:
     <<: *spark-common
     build:
-      context: .
-      dockerfile: Dockerfilejupyter
+      context: ../
+      dockerfile: DockerfileJupyter
     container_name: spark-notebook
     depends_on:
       - spark

@@ -20,8 +20,8 @@ services:
 
   hive-metastore:
     build:
-      context: .
-      dockerfile: Dockerfilehive
+      context: ../
+      dockerfile: DockerfileHive
     container_name: hive-metastore
     environment:
       HIVE_METASTORE_DRIVER: org.postgresql.Driver
