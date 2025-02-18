@@ -2,5 +2,8 @@ dremio.s3.compat	true
 fs.s3a.endpoint	host.docker.internal:9000
 fs.s3a.path.style.access	true
 
+wHGb3KP7Uk9vP3set9e9
+pADSQfN0Rw2mB2whu3C0cwugN49g8uy3IhovnMXP
+
 usr diogo
 pass admin123

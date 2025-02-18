@@ -16,21 +16,40 @@ dag = DAG(
     tags=['airflow','nubank']
 ) 
 
-ingest_task = SparkSubmitOperator(
-    task_id='spark_ingest_bronze',
+ingest_extrato = SparkSubmitOperator(
+    task_id='spark_ingest_extrato',
     application='/src/bronze/ingestao.py',
-    # application='s3a://raw/test.py',
     conn_id='spark_conn',
-    total_executor_cores='1',
-    executor_cores='1',
-    executor_memory='1g',
-    num_executors='1',
-    driver_memory='1g',
+    application_args=[
+        'nubank',
+        'extrato',
+        'csv',
+        'true',
+        "Data STRING, Valor DOUBLE, Identificador STRING, Descricao STRING",
+        'None'
+    ],
     conf={
         'spark.driver.host':'airflow-worker'
     },
     dag=dag
-    # application_args=['arg1', 'arg2'], 
     )
 
-ingest_task
+ingest_fatura = SparkSubmitOperator(
+    task_id='spark_ingest_fatura',
+    application='/src/bronze/ingestao.py',
+    conn_id='spark_conn',
+    application_args=[
+        'nubank',
+        'fatura',
+        'csv',
+        'true',
+        "date DATE, title STRING, amount DOUBLE",
+        'None'
+    ],
+    conf={
+        'spark.driver.host':'airflow-worker'
+    },
+    dag=dag
+    )
+
+[ingest_extrato, ingest_fatura]
