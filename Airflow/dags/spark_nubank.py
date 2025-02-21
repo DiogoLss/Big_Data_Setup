@@ -52,4 +52,24 @@ ingest_fatura = SparkSubmitOperator(
     dag=dag
     )
 
-[ingest_extrato, ingest_fatura]
+nubank_to_silver = SparkSubmitOperator(
+    task_id='spark_to_silver',
+    application='/src/silver/nubank.py',
+    conn_id='spark_conn',
+    conf={
+        'spark.driver.host':'airflow-worker'
+    },
+    dag=dag
+    )
+
+nubank_to_gold = SparkSubmitOperator(
+    task_id='spark_to_gold',
+    application='/src/gold/nubank.py',
+    conn_id='spark_conn',
+    conf={
+        'spark.driver.host':'airflow-worker'
+    },
+    dag=dag
+    )
+
+[ingest_extrato, ingest_fatura] >> nubank_to_silver >> nubank_to_gold
