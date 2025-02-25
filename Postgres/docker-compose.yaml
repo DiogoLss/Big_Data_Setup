@@ -1,0 +1,27 @@
+services:
+  postgres_simulation:
+    image: postgres:13
+    container_name: postgres_simulation
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: simulation
+    volumes:
+      - postgres-source-db-volume:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      interval: 10s
+      retries: 5
+      start_period: 5s
+    networks:
+    - spark_network
+    ports:
+      - "5434:5432"
+
+volumes:
+  postgres-source-db-volume:
+
+networks:
+  spark_network:
+    external: true
+    driver: bridge
