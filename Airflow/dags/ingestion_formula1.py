@@ -102,7 +102,8 @@ dag = DAG(
      dag_id="F1_Ingestion",
      start_date=datetime(2021, 1, 1),
      schedule=None,
-     catchup=False
+     catchup=False,
+    tags=['airflow','ingestion']
 )
 
 

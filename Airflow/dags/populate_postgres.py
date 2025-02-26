@@ -74,8 +74,6 @@ def feed_postgres():
     cursor.close()
     conn.close()
 
-
-
 feed_postgres = PythonOperator(
     task_id='feed_postgres',
     python_callable=feed_postgres,

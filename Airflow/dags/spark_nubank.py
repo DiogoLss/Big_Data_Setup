@@ -13,7 +13,7 @@ dag = DAG(
     default_args=default_args,
     schedule_interval=None,
     catchup=False,
-    tags=['airflow','nubank']
+    tags=['airflow','spark_jobs','nubank']
 ) 
 
 ingest_extrato = SparkSubmitOperator(

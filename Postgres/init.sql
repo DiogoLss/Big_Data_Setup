@@ -12,3 +12,8 @@ CREATE TABLE IF NOT EXISTS financeiro.clientes (
     nome VARCHAR(100),
     cidade VARCHAR(50)
 );
+
+
+SELECT pg_create_logical_replication_slot('python_slot', 'test_decoding');
+
+CREATE PUBLICATION my_python_pub FOR TABLE financeiro.movimentos_financeiros, financeiro.clientes;
