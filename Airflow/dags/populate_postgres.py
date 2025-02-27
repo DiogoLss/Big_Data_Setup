@@ -57,22 +57,17 @@ def populate_movimentos(cursor):
         """, (data_movimento, valor, cliente_id))
 
 def feed_postgres():
-    import pyodbc
-    conn_str = (
-        "DRIVER={PostgreSQL Unicode};"
-        "SERVER=postgres_simulation;"
-        "PORT=5432;"
-        "DATABASE=simulation;"
-        "UID=postgres;"
-        "PWD=postgres;"
-    )
-    conn = pyodbc.connect(conn_str)
-    cursor = conn.cursor()
+    from include.postgres_manager import Postgres_Connector
+    postgres = Postgres_Connector()
+    postgres.open_connection()
+    cursor = postgres.get_cursor()
+
     populate_clientes(cursor)
     populate_movimentos(cursor)
-    conn.commit()
-    cursor.close()
-    conn.close()
+    
+    postgres.commit()
+    postgres.close_cursor(cursor)
+    postgres.close_connection()
 
 feed_postgres = PythonOperator(
     task_id='feed_postgres',

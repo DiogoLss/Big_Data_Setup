@@ -2,3 +2,4 @@ apache-airflow-providers-apache-spark
 minio
 pyspark
 pyodbc
+openpyxl

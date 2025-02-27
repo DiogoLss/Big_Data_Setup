@@ -4,9 +4,9 @@ from datetime import datetime
 
 class MinioManager:
     def __init__(self):
-        self.endpoint = Variable.get("minio_endpoint")
-        self.access_key = Variable.get("minio_access_key")
-        self.secret_key = Variable.get("minio_secret_key")
+        self.endpoint = 'minio:9000'
+        self.access_key = '0zDtuw8AW60qjAXyYEAV'
+        self.secret_key = 'xfrhjdIOA5yzRsVNI2EWg17v4XXmQl2DKcEu0PFh'
 
         self.client = Minio(
             self.endpoint,
