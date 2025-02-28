@@ -3,3 +3,4 @@ minio
 pyspark
 pyodbc
 openpyxl
+pyarrow

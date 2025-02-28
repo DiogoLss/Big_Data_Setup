@@ -11,7 +11,7 @@ default_args = {
 dag = DAG(
     dag_id='Populate_data',
     default_args=default_args,
-    schedule_interval=None,
+    schedule_interval='*/5 * * * *',
     catchup=False,
     tags=['airflow','simulation']
 ) 
