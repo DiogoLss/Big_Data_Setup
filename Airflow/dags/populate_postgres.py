@@ -13,7 +13,7 @@ dag = DAG(
     default_args=default_args,
     schedule_interval='*/5 * * * *',
     catchup=False,
-    tags=['airflow','simulation']
+    tags=['airflow','simulation','postgres']
 ) 
 
 def populate_clientes(cursor):

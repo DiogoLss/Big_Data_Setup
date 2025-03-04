@@ -4,3 +4,4 @@ pyspark
 pyodbc
 openpyxl
 pyarrow
+delta-spark

@@ -6,4 +6,7 @@ COPY jars/*.jar /opt/bitnami/spark/jars/
 COPY sparkconfig/spark-defaults.conf /opt/bitnami/spark/conf/spark-defaults.conf
 COPY sparkconfig/hive-site.xml /opt/bitnami/spark/conf/hive-site.xml
 
+COPY ./sparkconfig/requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
 EXPOSE 4040 7077

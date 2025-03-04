@@ -54,10 +54,6 @@ services:
     ports:
       - "8888:8888"
 
-      
-volumes:
-  hive-postgres-db-volume:
-
 networks:
   spark_network:
     name: spark_network
