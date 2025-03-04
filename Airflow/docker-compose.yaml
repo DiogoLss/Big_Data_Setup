@@ -77,8 +77,6 @@ x-airflow-common:
   volumes:
     - ./dags:/opt/airflow/dags
     - ./dags/include:/opt/airflow/dags/include
-    - ./logs:/opt/airflow/logs
-    - ./config:/opt/airflow/config
     - ./plugins:/opt/airflow/plugins
     - ../Spark/src:/src
   user: "${AIRFLOW_UID:-50000}:0"

@@ -12,8 +12,8 @@ default_args = {
 dag = DAG(
     dag_id='Ingestion_raw',
     default_args=default_args,
-    schedule_interval=None,
-    # schedule_interval='*/10 * * * *',
+    # schedule_interval=None,
+    schedule_interval='*/10 * * * *',
     catchup=False,
     tags=['airflow','simulation','ingestion']
 ) 
