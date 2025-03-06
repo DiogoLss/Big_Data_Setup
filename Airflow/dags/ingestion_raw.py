@@ -55,7 +55,7 @@ def pull_to_MinIO(
 
 def ingest_from_postgres():
     from include.postgres_manager import Postgres_Connector
-    import json, os, glob
+    import json, os, glob, pandas as pd
     root = f'{Variable.get("root_data")}/postgres_ingestion/cdc/'
     postgres = Postgres_Connector()
     postgres.open_connection()
@@ -92,12 +92,10 @@ def ingest_from_postgres():
                 except json.JSONDecodeError as e:
                     print(f"Erro ao ler {file}: {e}")
 
-
-        output_file = os.path.join(tabela_path, "merged.json")
-        with open(output_file, 'w', encoding='utf-8') as f:
-            json.dump(dados_combinados, f, ensure_ascii=False, indent=4)
-
-        pull_to_MinIO('postgres/cdc/', tabela, [output_file], 'json')
+        df = pd.DataFrame(dados_combinados)
+        output_file = f'{tabela_path}/merged.parquet'
+        df.to_parquet(output_file)
+        pull_to_MinIO('postgres/cdc/', tabela, [output_file], 'parquet')
 
         for file in files:
             os.remove(file)
@@ -120,6 +118,7 @@ def full_load_postgres():
         df = pd.DataFrame.from_records(data, columns=colunas)
         path = f'{root}{tabela}/'
         os.makedirs(path,exist_ok=True)
+        df = df.astype(str)
         df.to_parquet(f'{path}{date}.parquet',index=False)
 
         pull_to_MinIO('/postgres/full_load',tabela,glob.glob(f'{path}*.parquet'),'parquet')
