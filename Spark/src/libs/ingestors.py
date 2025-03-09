@@ -1,12 +1,13 @@
 from libs.utils import convert_data_types,get_schema
+from delta import *
 
 class Ingestor():
-    def __init__(self,spark,catalog,database,table,data_format):
+    def __init__(self,spark,catalog,database,table,file_format):
         self.spark = spark
         self.catalog = catalog
         self.database = database
         self.table = table
-        self.file_format = data_format
+        self.file_format = file_format
         self.set_schema()
 
         self.table_aux = self.table.replace(".", "_")
@@ -18,9 +19,9 @@ class Ingestor():
 
     def load(self):
         raw = f's3a://raw/{self.database}/full_load/{self.table}/'
-        return (self.spark.read
+        return convert_data_types(self.spark.read
         .format(self.file_format)
-        .load(raw)
+        .load(raw),self.data_schema
         )
     
     def save(self,df):
@@ -30,38 +31,50 @@ class Ingestor():
         .saveAsTable(self.table_name))
 
     def execute(self):
-        df = convert_data_types(self.load(),self.data_schema)
+        df = self.load()
         self.save(df)
 
-# def ingest_cdc():
-#   print(f"ingesting {table_formatted} in cdc")
-#   raw = f's3a://raw/{database}/cdc/{table}/'
-#   df_cdc = (spark.read
-#                 .format(file_format)
-#                 .load(raw)
-#         )
-#   df_cdc = convert_data_types(df_cdc,schema)
+class IngestorCDC(Ingestor):
+    def __init__(self, spark, catalog, database, table, file_format,id_field,timestamp_field):
+        super().__init__(spark, catalog, database, table, file_format)
+        self.id_field = id_field
+        self.timestamp_field = timestamp_field
+        self.set_schema()
+        self.set_delta_table()
 
-#   df_cdc.createOrReplaceGlobalTempView(f"view_{table_formatted}")
-#   query = f'''
-#   WITH ranked_data AS (
-#     SELECT *,
-#           ROW_NUMBER() OVER (PARTITION BY {id_field} ORDER BY {timestamp_field} DESC) AS rn
-#     FROM global_temp.view_{table_formatted}
-#   )
-#   SELECT *
-#   FROM ranked_data
-#   WHERE rn = 1;
-#   '''
-#   df_cdc = spark.sql(query)
-#   df_cdc = df_cdc.drop("rn")
+    def set_delta_table(self):
+        self.deltatable = DeltaTable.forName(self.spark,self.table_name)
 
-#   deltatable = DeltaTable.forName(spark,table_name)
+    def upsert(self, df):
+        df.createOrReplaceGlobalTempView(f"view_{self.table_formatted}")
+        query = f'''
+        WITH ranked_data AS (
+            SELECT *,
+                ROW_NUMBER() OVER (PARTITION BY {self.id_field} ORDER BY {self.timestamp_field} DESC) AS rn
+            FROM global_temp.view_{self.table_formatted}
+        )
+        SELECT *
+        FROM ranked_data
+        WHERE rn = 1;
+        '''
+        df = self.spark.sql(query)
+        df = df.drop("rn")
 
-#   (deltatable
-#       .alias("b")
-#       .merge(df_cdc.alias("d"), f"b.{id_field} = d.{id_field}")
-#       .whenMatchedDelete(condition = "d.operacao = 'DELETE'")
-#       .whenMatchedUpdateAll(condition = "d.operacao = 'UPDATE'")
-#       .whenNotMatchedInsertAll(condition = "d.operacao = 'INSERT' OR d.operacao = 'UPDATE'")
-#       .execute())
+        (self.deltatable
+        .alias("b")
+        .merge(df.alias("d"), f"b.{self.id_field} = d.{self.id_field}")
+        .whenMatchedDelete(condition = "d.operacao = 'DELETE'")
+        .whenMatchedUpdateAll(condition = "d.operacao = 'UPDATE'")
+        .whenNotMatchedInsertAll(condition = "d.operacao = 'INSERT' OR d.operacao = 'UPDATE'")
+        .execute())
+
+    def load(self):
+        raw = f's3a://raw/{self.database}/cdc/{self.table}/'
+        return convert_data_types(self.spark.read
+        .format(self.file_format)
+        .load(raw),self.data_schema
+        )
+    
+    def save(self):
+        df = self.load()
+        self.upsert(df)
