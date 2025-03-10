@@ -1,4 +1,4 @@
-from libs.utils import convert_data_types,get_schema
+from libs.utils import convert_data_types, get_schema, set_schema_string
 from delta import *
 
 class Ingestor():
@@ -17,11 +17,10 @@ class Ingestor():
     def set_schema(self):
         self.data_schema = get_schema()
 
-    def load(self):
-        raw = f's3a://raw/{self.database}/full_load/{self.table}/'
+    def load(self,path):
         return convert_data_types(self.spark.read
         .format(self.file_format)
-        .load(raw),self.data_schema
+        .load(path),self.data_schema
         )
     
     def save(self,df):
@@ -30,13 +29,15 @@ class Ingestor():
         .format("delta")
         .saveAsTable(self.table_name))
 
-    def execute(self):
-        df = self.load()
+    def execute(self,raw_source):
+        df = self.load(raw_source)
         self.save(df)
 
 class IngestorCDC(Ingestor):
-    def __init__(self, spark, catalog, database, table, file_format,id_field,timestamp_field):
+    def __init__(self, spark, catalog, database, table, file_format,source_as_string,checkpoint_location,id_field,timestamp_field):
         super().__init__(spark, catalog, database, table, file_format)
+        self.source_as_string = source_as_string
+        self.checkpoint_location = checkpoint_location
         self.id_field = id_field
         self.timestamp_field = timestamp_field
         self.set_schema()
@@ -45,7 +46,17 @@ class IngestorCDC(Ingestor):
     def set_delta_table(self):
         self.deltatable = DeltaTable.forName(self.spark,self.table_name)
 
+    def load(self,path):
+        read_schema = self.data_schema
+        if self.source_as_string == 'true':
+            read_schema = set_schema_string(read_schema)
+        return (self.spark.readStream
+        .schema(read_schema)
+        .format(self.file_format)
+        .load(path))
+
     def upsert(self, df):
+        df = convert_data_types(df,self.data_schema)
         df.createOrReplaceGlobalTempView(f"view_{self.table_formatted}")
         query = f'''
         WITH ranked_data AS (
@@ -67,14 +78,10 @@ class IngestorCDC(Ingestor):
         .whenMatchedUpdateAll(condition = "d.operacao = 'UPDATE'")
         .whenNotMatchedInsertAll(condition = "d.operacao = 'INSERT' OR d.operacao = 'UPDATE'")
         .execute())
-
-    def load(self):
-        raw = f's3a://raw/{self.database}/cdc/{self.table}/'
-        return convert_data_types(self.spark.read
-        .format(self.file_format)
-        .load(raw),self.data_schema
-        )
     
-    def save(self):
-        df = self.load()
-        self.upsert(df)
+    def save(self,df_stream):
+        stream = (df_stream.writeStream
+        .option("checkpointLocation",self.checkpoint_location)
+        .foreachBatch(lambda df, batch_id: self.upsert(df))
+        .trigger(availableNow=True))
+        return stream.start()

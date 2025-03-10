@@ -1,6 +1,11 @@
 from pyspark.sql.functions import col
 from pyspark.sql.types import *
 
+def set_schema_string(schema):
+    for type in schema.fields:
+        type.dataType = StringType()
+    return schema
+
 def convert_data_types(df,schema):
     schema_dict = {field.name: field.dataType for field in schema.fields}
     for column_name, data_type in schema_dict.items():
@@ -20,7 +25,8 @@ def get_schema():
             StructField("cliente_id", LongType(), True),
             StructField("nome", StringType(), True),
             StructField("cidade", StringType(), True),
-            StructField("modificado_em", TimestampType(), True)
+            StructField("modificado_em", TimestampType(), True),
+            StructField("operacao", StringType(), True)
         ])
     #     schema = StructType([
     #     StructField("id", LongType(), True),
