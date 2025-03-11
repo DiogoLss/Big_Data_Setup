@@ -1,5 +1,7 @@
 from pyspark.sql.functions import col
 from pyspark.sql.types import *
+import json
+from pyspark.sql import types
 
 def set_schema_string(schema):
     for type in schema.fields:
@@ -19,19 +21,7 @@ def table_exists(spark,catalog,table):
     df = df.count()
     return df > 0
 
-
-def get_schema():
-    return StructType([
-            StructField("cliente_id", LongType(), True),
-            StructField("nome", StringType(), True),
-            StructField("cidade", StringType(), True),
-            StructField("modificado_em", TimestampType(), True),
-            StructField("operacao", StringType(), True)
-        ])
-    #     schema = StructType([
-    #     StructField("id", LongType(), True),
-    #     StructField("data_movimento", DateType(), True),
-    #     StructField("valor", DoubleType(), True),
-    #     StructField("cliente_id", LongType(), True),
-    #     StructField("modificado_em", TimestampType(), True)
-    # ])
+def get_schema(catalog,table):
+    with open(f'./{catalog}/table_schemas/{table}.json', 'r') as file:
+        schema_json = json.load(file)
+    return types.StructType.fromJson(schema_json)

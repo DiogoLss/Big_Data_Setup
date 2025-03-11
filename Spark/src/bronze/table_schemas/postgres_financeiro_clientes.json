@@ -1,0 +1,1 @@
+{"fields":[{"metadata":{},"name":"cliente_id","nullable":true,"type":"long"},{"metadata":{},"name":"nome","nullable":true,"type":"string"},{"metadata":{},"name":"cidade","nullable":true,"type":"string"},{"metadata":{},"name":"modificado_em","nullable":true,"type":"timestamp"},{"metadata":{},"name":"operacao","nullable":true,"type":"string"}],"type":"struct"}

@@ -8,14 +8,14 @@ class Ingestor():
         self.database = database
         self.table = table
         self.file_format = file_format
-        self.set_schema()
 
         self.table_aux = self.table.replace(".", "_")
         self.table_formatted = f"{self.database}_{self.table_aux}"
         self.table_name = f"{self.catalog}.{self.table_formatted}"
+        self.set_schema()
 
     def set_schema(self):
-        self.data_schema = get_schema()
+        self.data_schema = get_schema(self.catalog,self.table_formatted)
 
     def load(self,path):
         return convert_data_types(self.spark.read
@@ -40,7 +40,7 @@ class IngestorCDC(Ingestor):
         self.checkpoint_location = checkpoint_location
         self.id_field = id_field
         self.timestamp_field = timestamp_field
-        self.set_schema()
+
         self.set_delta_table()
 
     def set_delta_table(self):
@@ -56,6 +56,7 @@ class IngestorCDC(Ingestor):
         .load(path))
 
     def upsert(self, df):
+        print(self.data_schema)
         df = convert_data_types(df,self.data_schema)
         df.createOrReplaceGlobalTempView(f"view_{self.table_formatted}")
         query = f'''
