@@ -56,7 +56,6 @@ class IngestorCDC(Ingestor):
         .load(path))
 
     def upsert(self, df):
-        print(self.data_schema)
         df = convert_data_types(df,self.data_schema)
         df.createOrReplaceGlobalTempView(f"view_{self.table_formatted}")
         query = f'''

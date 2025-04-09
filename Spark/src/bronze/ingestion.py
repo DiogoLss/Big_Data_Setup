@@ -1,16 +1,17 @@
 from libs.spark_session import Spark
 from libs.utils import *
 from libs.ingestors import Ingestor,IngestorCDC
+import sys
 
 spark = Spark().spark
 
 catalog = 'bronze'
-database = 'postgres'
-table = 'financeiro.clientes'
-data_format = 'parquet'
-source_as_string = 'true'
-id_field = 'cliente_id'
-timestamp_field = 'modificado_em'
+database = sys.argv[1]
+table = sys.argv[2]
+data_format = sys.argv[3]
+source_as_string = sys.argv[4]
+id_field = sys.argv[5]
+timestamp_field = sys.argv[6]
 
 table_aux = table.replace(".", "_")
 table_formatted = f"{database}_{table_aux}"
