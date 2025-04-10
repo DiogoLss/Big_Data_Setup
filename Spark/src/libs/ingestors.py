@@ -56,6 +56,7 @@ class IngestorCDC(Ingestor):
         .load(path))
 
     def upsert(self, df):
+        print('starting upsert')
         df = convert_data_types(df,self.data_schema)
         df.createOrReplaceGlobalTempView(f"view_{self.table_formatted}")
         query = f'''
@@ -70,7 +71,6 @@ class IngestorCDC(Ingestor):
         '''
         df = self.spark.sql(query)
         df = df.drop("rn")
-
         (self.deltatable
         .alias("b")
         .merge(df.alias("d"), f"b.{self.id_field} = d.{self.id_field}")
