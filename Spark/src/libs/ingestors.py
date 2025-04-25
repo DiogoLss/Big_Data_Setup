@@ -29,8 +29,8 @@ class Ingestor():
         .format("delta")
         .saveAsTable(self.table_name))
 
-    def execute(self,raw_source):
-        df = self.load(raw_source)
+    def execute(self,source):
+        df = self.load(source)
         self.save(df)
 
 class IngestorCDC(Ingestor):
@@ -56,7 +56,6 @@ class IngestorCDC(Ingestor):
         .load(path))
 
     def upsert(self, df):
-        print('starting upsert')
         df = convert_data_types(df,self.data_schema)
         df.createOrReplaceGlobalTempView(f"view_{self.table_formatted}")
         query = f'''

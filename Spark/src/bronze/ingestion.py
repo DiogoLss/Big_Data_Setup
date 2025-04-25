@@ -46,4 +46,4 @@ else:
         id_field,
         timestamp_field
     )
-    stream = ingestor.execute(raw_source=cdc_source)
+    stream = ingestor.execute(source=cdc_source)
