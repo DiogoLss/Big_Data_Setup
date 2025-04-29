@@ -33,23 +33,3 @@ ingest_financeiro_clientes = SparkSubmitOperator(
     },
     dag=dag
     )
-
-# ingest_financeiro_movimentos = SparkSubmitOperator(
-#     task_id='ingest_financeiro_movimentos',
-#     application='/src/bronze/ingestion.py',
-#     conn_id='spark_conn',
-#     application_args=[
-#         'postgres',
-#         'financeiro.clientes',
-#         'parquet',
-#         'true',
-#         'id',
-#         'modificado_em'
-#     ],
-#     conf={
-#         'spark.driver.host':'airflow-worker'
-#     },
-#     dag=dag
-#     )
-
-# [ingest_financeiro_clientes, ingest_financeiro_movimentos]

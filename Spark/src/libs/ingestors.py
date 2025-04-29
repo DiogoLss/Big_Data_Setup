@@ -31,7 +31,7 @@ class Ingestor():
 
     def execute(self,source):
         df = self.load(source)
-        self.save(df)
+        return self.save(df)
 
 class IngestorCDC(Ingestor):
     def __init__(self, spark, catalog, database, table, file_format,source_as_string,checkpoint_location,id_field,timestamp_field):
@@ -83,4 +83,4 @@ class IngestorCDC(Ingestor):
         .option("checkpointLocation",self.checkpoint_location)
         .foreachBatch(lambda df, batch_id: self.upsert(df))
         .trigger(availableNow=True))
-        return stream.start()
+        return stream.start().awaitTermination()

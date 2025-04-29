@@ -9,11 +9,11 @@ default_args = {
 }
 
 dag = DAG(
-    dag_id='Spark_Jobs',
+    dag_id='Spark_Nubank',
     default_args=default_args,
     schedule_interval=None,
     catchup=False,
-    tags=['postgres']
+    tags=['nubank','spark']
 )
 
 ingest_extrato = SparkSubmitOperator(
@@ -72,42 +72,4 @@ nubank_to_gold = SparkSubmitOperator(
     dag=dag
     )
 
-ingest_financeiro_clientes = SparkSubmitOperator(
-    task_id='ingest_financeiro_clientes',
-    application='/src/bronze/ingestion.py',
-    conn_id='spark_conn',
-    application_args=[
-        'postgres',
-        'financeiro.clientes',
-        'parquet',
-        'true',
-        'cliente_id',
-        'modificado_em'
-    ],
-    conf={
-        'spark.driver.host':'airflow-worker'
-    },
-    dag=dag
-    )
-
-ingest_financeiro_movimentos = SparkSubmitOperator(
-    task_id='ingest_financeiro_movimentos',
-    application='/src/bronze/ingestion.py',
-    conn_id='spark_conn',
-    application_args=[
-        'postgres',
-        'financeiro.clientes',
-        'parquet',
-        'true',
-        'id',
-        'modificado_em'
-    ],
-    conf={
-        'spark.driver.host':'airflow-worker'
-    },
-    dag=dag
-    )
-
-
 [ingest_extrato, ingest_fatura] >> nubank_to_silver >> nubank_to_gold
-[ingest_financeiro_clientes, ingest_financeiro_movimentos]

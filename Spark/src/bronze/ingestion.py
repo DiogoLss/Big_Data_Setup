@@ -4,7 +4,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from libs.spark_session import Spark
 from libs.utils import *
 from libs.ingestors import Ingestor,IngestorCDC
-
+import time
 
 spark = Spark().spark
 
@@ -32,7 +32,7 @@ if not table_exists(spark,catalog,table_formatted):
     table,
     data_format
     )
-    ingestor.execute(raw_source=fullload_source)
+    ingestor.execute(source=fullload_source)
 else:
     print(f"ingesting table using cdc {table_formatted}")
     ingestor = IngestorCDC(
