@@ -23,7 +23,7 @@ services:
 
   spark-worker1:
     <<: *spark-common
-    image: bitnami/spark:latest
+    image: bitnami/spark:3.5.4
     container_name: spark-worker1
     depends_on:
       - spark
@@ -34,7 +34,7 @@ services:
 
   spark-worker2:
     <<: *spark-common
-    image: bitnami/spark:latest
+    image: bitnami/spark:3.5.4
     container_name: spark-worker2
     depends_on:
       - spark

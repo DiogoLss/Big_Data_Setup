@@ -29,9 +29,9 @@ class Ingestor():
         .format("delta")
         .saveAsTable(self.table_name))
 
-    def execute(self,raw_source):
-        df = self.load(raw_source)
-        self.save(df)
+    def execute(self,source):
+        df = self.load(source)
+        return self.save(df)
 
 class IngestorCDC(Ingestor):
     def __init__(self, spark, catalog, database, table, file_format,source_as_string,checkpoint_location,id_field,timestamp_field):
@@ -56,7 +56,6 @@ class IngestorCDC(Ingestor):
         .load(path))
 
     def upsert(self, df):
-        print(self.data_schema)
         df = convert_data_types(df,self.data_schema)
         df.createOrReplaceGlobalTempView(f"view_{self.table_formatted}")
         query = f'''
@@ -71,7 +70,6 @@ class IngestorCDC(Ingestor):
         '''
         df = self.spark.sql(query)
         df = df.drop("rn")
-
         (self.deltatable
         .alias("b")
         .merge(df.alias("d"), f"b.{self.id_field} = d.{self.id_field}")
@@ -85,4 +83,4 @@ class IngestorCDC(Ingestor):
         .option("checkpointLocation",self.checkpoint_location)
         .foreachBatch(lambda df, batch_id: self.upsert(df))
         .trigger(availableNow=True))
-        return stream.start()
+        return stream.start().awaitTermination()

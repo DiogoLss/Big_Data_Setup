@@ -9,15 +9,15 @@ default_args = {
 }
 
 dag = DAG(
-    dag_id='Spark_nubank',
+    dag_id='Spark_Nubank',
     default_args=default_args,
     schedule_interval=None,
     catchup=False,
-    tags=['airflow','spark_jobs','nubank']
-) 
+    tags=['nubank','spark']
+)
 
 ingest_extrato = SparkSubmitOperator(
-    task_id='spark_ingest_extrato',
+    task_id='ingest_extrato',
     application='/src/bronze/ingestao.py',
     conn_id='spark_conn',
     application_args=[
@@ -35,7 +35,7 @@ ingest_extrato = SparkSubmitOperator(
     )
 
 ingest_fatura = SparkSubmitOperator(
-    task_id='spark_ingest_fatura',
+    task_id='ingest_fatura',
     application='/src/bronze/ingestao.py',
     conn_id='spark_conn',
     application_args=[
@@ -53,7 +53,7 @@ ingest_fatura = SparkSubmitOperator(
     )
 
 nubank_to_silver = SparkSubmitOperator(
-    task_id='spark_to_silver',
+    task_id='nubank_to_silver',
     application='/src/silver/nubank.py',
     conn_id='spark_conn',
     conf={
@@ -63,7 +63,7 @@ nubank_to_silver = SparkSubmitOperator(
     )
 
 nubank_to_gold = SparkSubmitOperator(
-    task_id='spark_to_gold',
+    task_id='nubank_to_gold',
     application='/src/gold/nubank.py',
     conn_id='spark_conn',
     conf={

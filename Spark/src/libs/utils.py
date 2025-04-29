@@ -22,6 +22,10 @@ def table_exists(spark,catalog,table):
     return df > 0
 
 def get_schema(catalog,table):
-    with open(f'./{catalog}/table_schemas/{table}.json', 'r') as file:
+    import os
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    schema_path = os.path.join(base_dir, '..', catalog, 'table_schemas', f'{table}.json')
+    schema_path = os.path.abspath(schema_path)
+    with open(schema_path, 'r') as file:
         schema_json = json.load(file)
     return types.StructType.fromJson(schema_json)
