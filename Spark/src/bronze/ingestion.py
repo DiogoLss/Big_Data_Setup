@@ -4,7 +4,6 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from libs.spark_session import Spark
 from libs.utils import *
 from libs.ingestors import Ingestor,IngestorCDC
-import time
 
 spark = Spark().spark
 

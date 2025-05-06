@@ -52,4 +52,32 @@ ingest_financeiro_movimentos = SparkSubmitOperator(
     dag=dag
     )
 
+ingest_silver_clientes = SparkSubmitOperator(
+    task_id='ingest_silver_clientes',
+    application='/src/silver/ingestion.py',
+    conn_id='spark_conn',
+    application_args=[
+        'clientes'
+    ],
+    conf={
+        'spark.driver.host':'airflow-worker'
+    },
+    dag=dag
+    )
+
+ingest_silver_movimentos = SparkSubmitOperator(
+    task_id='ingest_silver_movimentos',
+    application='/src/silver/ingestion.py',
+    conn_id='spark_conn',
+    application_args=[
+        'movimentos'
+    ],
+    conf={
+        'spark.driver.host':'airflow-worker'
+    },
+    dag=dag
+    )
+
 [ingest_financeiro_clientes, ingest_financeiro_movimentos]
+ingest_financeiro_clientes >> ingest_silver_clientes
+ingest_financeiro_movimentos >> ingest_silver_movimentos
