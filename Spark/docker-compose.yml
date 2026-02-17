@@ -19,40 +19,43 @@ services:
       - SPARK_MODE=master
       - SPARK_MASTER_PORT=7077
       - SPARK_MASTER_WEBUI_PORT=4040
-      - BITNAMI_DEBUG=true
+    command: ["/opt/spark/bin/spark-class", "org.apache.spark.deploy.master.Master", "--host", "0.0.0.0"]
+    restart: unless-stopped
 
   spark-worker1:
     <<: *spark-common
-    image: bitnami/spark:3.5.4
+    image: apache/spark
     container_name: spark-worker1
     depends_on:
       - spark
     environment:
       - SPARK_MODE=worker
-      - SPARK_MASTER_URL=spark://spark-container:7077
       - SPARK_WORKER_MEMORY=2G
+    command: ["/opt/spark/bin/spark-class", "org.apache.spark.deploy.worker.Worker", "spark://spark:7077"]
+    restart: on-failure
 
   spark-worker2:
     <<: *spark-common
-    image: bitnami/spark:3.5.4
+    image: apache/spark
     container_name: spark-worker2
     depends_on:
       - spark
     environment:
       - SPARK_MODE=worker
-      - SPARK_MASTER_URL=spark://spark-container:7077
       - SPARK_WORKER_MEMORY=2G
+    command: ["/opt/spark/bin/spark-class", "org.apache.spark.deploy.worker.Worker", "spark://spark:7077", "--host", "0.0.0.0"]
+    restart: on-failure
 
-  spark_notebook:
-    <<: *spark-common
-    build:
-      context: ../
-      dockerfile: DockerfileJupyter
-    container_name: spark-notebook
-    depends_on:
-      - spark
-    ports:
-      - "8888:8888"
+  # spark_notebook:
+  #   <<: *spark-common
+  #   build:
+  #     context: ../
+  #     dockerfile: DockerfileJupyter
+  #   container_name: spark-notebook
+  #   depends_on:
+  #     - spark
+  #   ports:
+  #     - "8888:8888"
 
 networks:
   spark_network:
