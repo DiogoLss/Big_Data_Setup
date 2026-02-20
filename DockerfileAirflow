@@ -21,9 +21,12 @@ RUN wget -qO- "https://dlcdn.apache.org/spark/spark-${SPARK_VERSION}/spark-${SPA
 ENV SPARK_HOME=/opt/spark
 ENV PATH="${SPARK_HOME}/bin:${PATH}"
 
-COPY jars/ /opt/spark/jars/
-COPY sparkconfig/spark-defaults.conf /opt/spark/conf/spark-defaults.conf
-COPY sparkconfig/hive-site.xml /opt/spark/conf/hive-site.xml
+COPY Spark/jars/ /opt/spark/jars/
+COPY Spark/sparkconfig/spark-defaults.conf /opt/spark/conf/spark-defaults.conf
+COPY Spark/sparkconfig/hive-site.xml /opt/spark/conf/hive-site.xml
+
+#SET AIRFLOW CONFIG
+COPY Airflow/config/airflow.cfg /opt/airflow/airflow.cfg
 
 #PIP INSTALL
 USER airflow

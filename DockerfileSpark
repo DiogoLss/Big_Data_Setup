@@ -2,11 +2,11 @@ FROM apache/spark
 
 WORKDIR /opt/spark/
 
-COPY jars/*.jar /opt/spark/jars/
-COPY sparkconfig/spark-defaults.conf /opt/spark/conf/spark-defaults.conf
-COPY sparkconfig/hive-site.xml /opt/spark/conf/hive-site.xml
+COPY Spark/jars/*.jar /opt/spark/jars/
+COPY Spark/sparkconfig/spark-defaults.conf /opt/spark/conf/spark-defaults.conf
+COPY Spark/sparkconfig/hive-site.xml /opt/spark/conf/hive-site.xml
 
-COPY ./sparkconfig/requirements.txt .
+COPY Spark/sparkconfig/requirements.txt .
 USER root
 RUN pip install --no-cache-dir -r requirements.txt
 
