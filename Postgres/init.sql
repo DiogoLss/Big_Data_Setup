@@ -14,14 +14,14 @@ CREATE TABLE IF NOT EXISTS financeiro.movimentos_financeiros (
     data_movimento DATE,
     valor NUMERIC(10,2),
     cliente_id INT,
-    modificado_em TIMESTAMP DEFAULT now();
+    modificado_em TIMESTAMP DEFAULT now()
 );
 
 CREATE TABLE IF NOT EXISTS financeiro.clientes (
     cliente_id SERIAL PRIMARY KEY,
     nome VARCHAR(100),
     cidade VARCHAR(50),
-    modificado_em TIMESTAMP DEFAULT now();
+    modificado_em TIMESTAMP DEFAULT now()
 );
 --Cria triggers para armazenar timestamp nas linhas
 CREATE TRIGGER update_timestamp_clientes

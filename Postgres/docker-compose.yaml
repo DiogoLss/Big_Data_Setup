@@ -9,11 +9,13 @@ services:
     volumes:
       - postgres-source-db-volume:/var/lib/postgresql/data
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
-      - ./postgresql.conf:/var/lib/postgresql/data/postgresql.conf
     healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
       interval: 10s
+      timeout: 5s
       retries: 5
       start_period: 5s
+    restart: unless-stopped
     networks:
     - spark_network
     ports:
