@@ -5,8 +5,8 @@ from datetime import datetime
 class MinioManager:
     def __init__(self):
         self.endpoint = 'minio:9000'
-        self.access_key = '0zDtuw8AW60qjAXyYEAV'
-        self.secret_key = 'xfrhjdIOA5yzRsVNI2EWg17v4XXmQl2DKcEu0PFh'
+        self.access_key = 'admin'
+        self.secret_key = 'admin123'
 
         self.client = Minio(
             self.endpoint,
