@@ -11,22 +11,17 @@ default_args = {
 dag = DAG(
     dag_id='test_routine',
     default_args=default_args,
-    schedule_interval=None,
+    schedule=None,
     catchup=False,
     tags=['postgres']
 )
 
 ingest_financeiro_clientes = SparkSubmitOperator(
     task_id='ingest_financeiro_clientes',
-    application='/src/bronze/ingestion.py',
+    application='/src/silver/ingestion.py',
     conn_id='spark_conn',
     application_args=[
-        'postgres',
-        'financeiro.clientes',
-        'parquet',
-        'true',
-        'cliente_id',
-        'modificado_em'
+        'movimentos'
     ],
     conf={
         'spark.driver.host':'airflow-worker'

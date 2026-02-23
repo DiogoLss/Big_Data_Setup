@@ -13,10 +13,15 @@ dag = DAG(
     dag_id='Ingestion_raw',
     default_args=default_args,
     # schedule_interval=None,
-    schedule_interval='*/10 * * * *',
+    schedule='*/10 * * * *',
     catchup=False,
     tags=['airflow','simulation','ingestion']
 ) 
+
+tabelas = [
+    'financeiro.movimentos_financeiros',
+    'financeiro.clientes'
+]
 
 def parse_cdc_event(data):
     import re
@@ -52,11 +57,10 @@ def pull_to_MinIO(
         minio.upload_file('raw',path,file_format,file)
         os.remove(file)
 
-
-def ingest_from_postgres():
+def ingest_cdc_from_postgres():
     from include.postgres_manager import Postgres_Connector
     import json, os, glob, pandas as pd
-    root = f'{Variable.get("root_data")}/postgres_ingestion/cdc/'
+    root = f'./include/data/postgres_ingestion/cdc/'
     postgres = Postgres_Connector()
     postgres.open_connection()
     cursor = postgres.get_cursor()
@@ -100,53 +104,55 @@ def ingest_from_postgres():
         for file in files:
             os.remove(file)
 
-def full_load_postgres():
+def full_load_postgres(root,table):
     from include.postgres_manager import Postgres_Connector
     import pandas as pd, os, glob
     postgres = Postgres_Connector()
     postgres.open_connection()
     cursor = postgres.get_cursor()
 
-    root = f'{Variable.get("root_data")}/postgres_ingestion/full_load/'
-    
-    tabelas = ['financeiro.movimentos_financeiros','financeiro.clientes']
-    for tabela in tabelas:
-        date = datetime.now().strftime('%y-%m-%d-%H-%M-%S-%f')
-        cursor.execute(f"SELECT * FROM {tabela}")
-        data = cursor.fetchall()
-        colunas = [desc[0] for desc in cursor.description]
-        df = pd.DataFrame.from_records(data, columns=colunas)
-        path = f'{root}{tabela}/'
-        os.makedirs(path,exist_ok=True)
-        df = df.astype(str)
-        df.to_parquet(f'{path}{date}.parquet',index=False)
+    cursor.execute(f"SELECT * FROM {table}")
+    data = cursor.fetchall()
+    colunas = [desc[0] for desc in cursor.description]
+    df = pd.DataFrame.from_records(data, columns=colunas)
+    path = f'{root}{table}/'
+    os.makedirs(path,exist_ok=True)
+    df = df.astype(str)
+    df.to_parquet(f'{path}{table}.parquet',index=False)
 
-        pull_to_MinIO('/postgres/full_load',tabela,glob.glob(f'{path}*.parquet'),'parquet')
-
+    pull_to_MinIO('/postgres/full_load',table,glob.glob(f'{path}*.parquet'),'parquet')
 
     postgres.close_cursor(cursor)
     postgres.close_connection()
     
+def ingest_table():
+    import os
+    from pyspark.sql import SparkSession
 
+    root = f'./include/data/postgres_ingestion/full_load/'
+
+    # spark = SparkSession(
+    #         SparkSession.builder
+    #         .appName("Spark_Watcher")
+    #         .enableHiveSupport()
+    #         ).getOrCreate()
+    # df = spark.sql(f"show tables from {catalog}")
+    # df = df.filter(df.tableName == table)
+    # df = df.count()
+    # test = df > 0
+
+    for table in tabelas:
+        path = f'{root}{table}'
+        if not os.path.exists(f'{path}{table}.parquet'):
+            full_load_postgres(root,table)
+        else:
+            ingest_cdc_from_postgres()
 
 
 ingest_from_postgres = PythonOperator(
     task_id='ingest_from_postgres',
-    python_callable=ingest_from_postgres,
+    python_callable=ingest_table,
     dag=dag
     )
 
 ingest_from_postgres
-
-
-# full_load_postgres = PythonOperator(
-#     task_id='full_load_postgres',
-#     python_callable=full_load_postgres,
-#     dag=dag
-#     )
-
-
-# full_load_postgres >> ingest_from_postgres
-
-
-

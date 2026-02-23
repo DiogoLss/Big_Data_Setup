@@ -11,14 +11,14 @@ default_args = {
 dag = DAG(
     dag_id='Spark_Nubank',
     default_args=default_args,
-    schedule_interval=None,
+    schedule=None,
     catchup=False,
     tags=['nubank','spark']
 )
 
 ingest_extrato = SparkSubmitOperator(
     task_id='ingest_extrato',
-    application='/src/bronze/ingestao.py',
+    application='/src/bronze/nubank_ingestion.py',
     conn_id='spark_conn',
     application_args=[
         'nubank',
@@ -36,7 +36,7 @@ ingest_extrato = SparkSubmitOperator(
 
 ingest_fatura = SparkSubmitOperator(
     task_id='ingest_fatura',
-    application='/src/bronze/ingestao.py',
+    application='/src/bronze/nubank_ingestion.py',
     conn_id='spark_conn',
     application_args=[
         'nubank',

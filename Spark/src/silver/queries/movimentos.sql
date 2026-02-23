@@ -1,0 +1,6 @@
+SELECT
+id,
+data_movimento,
+valor,
+cliente_id
+FROM bronze.postgres_financeiro_movimentos_financeiros
